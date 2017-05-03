@@ -1,0 +1,32 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CommandMove : Command 
+{
+	public Vector3 moveDir;
+	public Vector3 pos;
+
+	public CommandMove(Vector3 direction)
+	{
+		moveDir = direction;
+	}
+
+	public CommandMove(Vector3 direction, GameObject obj)
+	{
+		moveDir = direction;
+		target = obj;
+	}
+
+	public override void Execute(GameObject obj, bool log)
+	{
+		base.Execute(obj, true);
+
+		try
+		{ obj.GetComponent<Movement>().Move(moveDir); }
+		catch{ Debug.Log(MessageText.cmdError + "Tried to send move command to an object without the movement script!", obj); }
+
+		pos = obj.transform.position;
+
+	}
+}
