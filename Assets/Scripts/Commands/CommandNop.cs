@@ -11,7 +11,16 @@ public class CommandNop : Command
 
 	public override void Execute(GameObject obj, bool log)
 	{
-		base.Execute(obj, true);
+		base.Execute(obj, log);
+
+		try
+		{ obj.GetComponent<Movement>().Move(Vector3.zero); }
+		catch{ Debug.Log(MessageText.cmdError + "Tried to send move command to an object without the movement script!", obj); }
+	}
+
+	public override void Undo(GameObject obj)
+	{
+		base.Undo(obj);
 
 		try
 		{ obj.GetComponent<Movement>().Move(Vector3.zero); }

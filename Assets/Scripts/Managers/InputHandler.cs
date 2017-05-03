@@ -10,12 +10,16 @@ public class InputHandler : MonoBehaviour
 	Command moveBackward;
 	Command moveRight;
 
-	// Replay
+	// Command Log
 	Command replay;
+	Command rewind;
+	Command clearLog;
 
 	Command nop;
 
 	GameObject player;
+
+	bool allowInput = true;
 
 	void Awake()
 	{
@@ -27,14 +31,19 @@ public class InputHandler : MonoBehaviour
 		moveRight = new CommandMove(Vector3.right, player);
 
 		replay = new CommandReplay();
+		rewind = new CommandRewind();
+		clearLog = new CommandClearLog();
 
 		nop = new CommandNop(player);
 	}
 
 	void Update()
 	{
-		Command input = HandleInput();
-		input.Execute(input.target, true);
+		if(allowInput)
+		{
+			Command input = HandleInput();
+			input.Execute(input.target, true);
+		}
 	}
 
 	public Command HandleInput()
@@ -45,6 +54,15 @@ public class InputHandler : MonoBehaviour
 		if(Input.GetKey(keyBinds.moveLeft)){ return moveLeft; }
 		if(Input.GetKey(keyBinds.moveBackward)){ return moveBackward; }
 		if(Input.GetKey(keyBinds.moveRight)){ return moveRight; }
-		else{ return nop; }
+		if(Input.GetKeyDown(keyBinds.replay)){ return replay; }
+		if(Input.GetKeyDown(keyBinds.rewind)){ return rewind; }
+		if(Input.GetKeyDown(keyBinds.clearLog)){ return clearLog; }
+
+		return nop;
+	}
+
+	public void AllowInput(bool value)
+	{
+		allowInput = value;
 	}
 }

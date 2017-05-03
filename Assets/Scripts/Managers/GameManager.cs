@@ -31,14 +31,4 @@ public class GameManager : MonoBehaviour
 		inputHandler = GetComponent<InputHandler>();
 		cmdLog = GetComponent<CommandLog>();
 	}
-
-	void Start () 
-	{
-		
-	}
-	
-	void Update () 
-	{
-
-	}
 }

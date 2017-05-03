@@ -7,11 +7,6 @@ public class CommandMove : Command
 	public Vector3 moveDir;
 	public Vector3 pos;
 
-	public CommandMove(Vector3 direction)
-	{
-		moveDir = direction;
-	}
-
 	public CommandMove(Vector3 direction, GameObject obj)
 	{
 		moveDir = direction;
@@ -20,13 +15,21 @@ public class CommandMove : Command
 
 	public override void Execute(GameObject obj, bool log)
 	{
-		base.Execute(obj, true);
+		base.Execute(obj, log);
 
 		try
 		{ obj.GetComponent<Movement>().Move(moveDir); }
 		catch{ Debug.Log(MessageText.cmdError + "Tried to send move command to an object without the movement script!", obj); }
 
 		pos = obj.transform.position;
+	}
 
+	public override void Undo(GameObject obj)
+	{
+		base.Undo(obj);
+
+		try
+		{ obj.GetComponent<Movement>().Move(-moveDir); }
+		catch{ Debug.Log(MessageText.cmdError + "Tried to send move command to an object without the movement script!", obj); }
 	}
 }

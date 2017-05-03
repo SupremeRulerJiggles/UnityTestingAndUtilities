@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CommandReplay : Command
+public class CommandClearLog : Command
 {
 	public override void Execute(GameObject obj, bool log)
 	{
 		base.Execute(obj, log);
 
-		cmdLog.Replay();
+		cmdLog.ClearLog();
 	}
 }

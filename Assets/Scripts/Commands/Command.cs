@@ -5,35 +5,36 @@ using UnityEngine;
 [System.Serializable]
 public class Command
 {
-	protected CommandLog log;
+	protected CommandLog cmdLog;
 	public GameObject target;
-
-	public Command()
-	{
-/*		try{ log = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().cmdLog; }
-		catch { Debug.Log(MessageText.managerError + "The Command Log component could not be found on the Game Controller"); }*/
-	}
 
 	public virtual void Execute(GameObject obj, bool log)
 	{ 
 		target = obj;
 
-
-
-		if(log)
+		if(cmdLog)
 			LogCommand(); 
+			
 		else
 		{
-			try{ log = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().cmdLog; }
-			catch { Debug.Log(MessageText.managerError + "The Command Log component could not be found on the Game Controller"); }
+			if(!cmdLog)
+			{
+				try{ cmdLog = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().cmdLog; }
+				catch { Debug.Log(MessageText.managerError + "The Command Log component could not be found on the Game Controller"); }
+			}
 
 			LogCommand();
 		}
 	}
 
+	public virtual void Undo(GameObject obj)
+	{
+		target = obj;
+	}
+
 	protected virtual void LogCommand()
 	{ 
-		log.AddCommand(this); 
+		cmdLog.AddCommand(this); 
 	}
 }
 

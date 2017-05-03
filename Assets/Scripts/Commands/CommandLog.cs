@@ -10,6 +10,8 @@ public class CommandLog : MonoBehaviour
 
 	bool allowCommands = true;
 
+	InputHandler inputHandler;
+
 	void Update()
 	{
 		LimitLogSize();
@@ -21,20 +23,44 @@ public class CommandLog : MonoBehaviour
 		StartCoroutine("ReplayCommands");
 	}
 
+	public void Rewind()
+	{
+		StartCoroutine("RewindCommands");
+	}
+
+	public void AddCommand(Command com)
+	{
+		buffer.Add(com);
+	}
+
+	public List<Command> GetCurrentLog()
+	{
+		return log;
+	}
+
+	public void ClearLog()
+	{
+		log.Clear();
+	}
+
 	IEnumerator ReplayCommands()
 	{
-		allowCommands = false;
+		try{ inputHandler = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().inputHandler; }
+		catch { Debug.Log(MessageText.managerError + "The Input Log component could not be found on the Game Controller"); yield break; }
+
+		inputHandler.AllowInput(false);
 
 		Command[] temp = new Command[log.Count];
 		log.CopyTo(temp);
 
-		int nopCount = 0;
+		int startCount = 0;
+		int endCount = temp.Length - 1;
 
 		for(int i = 0; i < temp.Length; i++)
 		{
 			if(temp[i] is CommandNop)
 			{
-				nopCount++;
+				startCount++;
 			}
 			else
 			{
@@ -42,7 +68,19 @@ public class CommandLog : MonoBehaviour
 			}
 		}
 
-		for(int i = nopCount; i < temp.Length; i++)
+		for(int i = temp.Length - 1; i >= 0; i--)
+		{
+			if(temp[i] is CommandNop)
+			{
+				endCount--;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		for(int i = startCount; i <= endCount; i++)
 		{
 			temp[i].Execute(temp[i].target, false);
 
@@ -51,15 +89,59 @@ public class CommandLog : MonoBehaviour
 				
 		log.Clear();
 
-		allowCommands = true;
+		inputHandler.AllowInput(true);
 	}
 
-	public void AddCommand(Command com)
+	IEnumerator RewindCommands()
 	{
-		buffer.Add(com);
+		try{ inputHandler = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().inputHandler; }
+		catch { Debug.Log(MessageText.managerError + "The Input Log component could not be found on the Game Controller"); yield break; }
+
+		inputHandler.AllowInput(false);
+
+		Command[] temp = new Command[log.Count];
+		log.CopyTo(temp);
+
+		int startCount = temp.Length - 1;
+		int endCount = 0;
+
+		for(int i = temp.Length - 1; i >= 0; i--)
+		{
+			if(temp[i] is CommandNop)
+			{
+				startCount--;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		for(int i = 0; i < temp.Length; i++)
+		{
+			if(temp[i] is CommandNop)
+			{
+				endCount++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		for(int i = startCount; i >= endCount; i--)
+		{
+			temp[i].Undo(temp[i].target);
+
+			yield return new WaitForEndOfFrame();
+		}
+
+		log.Clear();
+
+		inputHandler.AllowInput(true);
 	}
 
-	public void UpdateLog()
+	void UpdateLog()
 	{
 		if(allowCommands)
 		{
@@ -67,16 +149,11 @@ public class CommandLog : MonoBehaviour
 			{
 				log.Add(cmd);
 			}
-
-			buffer.Clear();
 		}
-	}
 
-	public List<Command> GetCurrentLog()
-	{
-		return log;
+		buffer.Clear();
 	}
-
+		
 	void LimitLogSize()
 	{
 		if(log.Count > maxSize)
