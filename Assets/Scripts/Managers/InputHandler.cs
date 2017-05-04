@@ -15,6 +15,7 @@ public class InputHandler : MonoBehaviour
 	Command rewind;
 	Command clearLog;
 
+	// No input
 	Command nop;
 
 	GameObject player;
@@ -25,35 +26,33 @@ public class InputHandler : MonoBehaviour
 	{
 		player = GameObject.FindGameObjectWithTag("Player");
 
-		moveForward = new CommandMove(Vector3.forward, player);
-		moveLeft = new CommandMove(Vector3.left, player);
-		moveBackward = new CommandMove(Vector3.back, player);
-		moveRight = new CommandMove(Vector3.right, player);
-
+		// Instances of command log commands
 		replay = new CommandReplay();
 		rewind = new CommandRewind();
 		clearLog = new CommandClearLog();
 
+		// Instance of no-op command
 		nop = new CommandNop(player);
 	}
 
 	void Update()
 	{
+		// If input is allowed, get the input command and execute the command
 		if(allowInput)
 		{
-			Command input = HandleInput();
-			input.Execute(input.target, true);
+			Command moveInput = HandleMovementInput();
+			Command logInput = HandleLogInput();
+
+			moveInput.Execute(moveInput.target, true);
+			logInput.Execute(logInput.target, true);
 		}
 	}
 
-	public Command HandleInput()
+	// Get input and return the associated command
+	public Command HandleLogInput()
 	{
 		KeyBindings keyBinds = GameManager.GM.keyBinds;
 
-		if(Input.GetKey(keyBinds.moveForward)){ return moveForward; }
-		if(Input.GetKey(keyBinds.moveLeft)){ return moveLeft; }
-		if(Input.GetKey(keyBinds.moveBackward)){ return moveBackward; }
-		if(Input.GetKey(keyBinds.moveRight)){ return moveRight; }
 		if(Input.GetKeyDown(keyBinds.replay)){ return replay; }
 		if(Input.GetKeyDown(keyBinds.rewind)){ return rewind; }
 		if(Input.GetKeyDown(keyBinds.clearLog)){ return clearLog; }
@@ -61,6 +60,23 @@ public class InputHandler : MonoBehaviour
 		return nop;
 	}
 
+	public Command HandleMovementInput()
+	{
+		KeyBindings keyBinds = GameManager.GM.keyBinds;
+
+		Vector3 moveDir = Vector3.zero;
+
+		if(Input.GetKey(keyBinds.moveForward)){ moveDir += Vector3.forward; }
+		if(Input.GetKey(keyBinds.moveLeft)){ moveDir += Vector3.left; }
+		if(Input.GetKey(keyBinds.moveBackward)){ moveDir += Vector3.back; }
+		if(Input.GetKey(keyBinds.moveRight)){ moveDir += Vector3.right; }
+
+		CommandMove newMoveCmd = new CommandMove(moveDir.normalized, player);
+
+		return newMoveCmd;
+	}
+		
+	// Setter for allowing input
 	public void AllowInput(bool value)
 	{
 		allowInput = value;

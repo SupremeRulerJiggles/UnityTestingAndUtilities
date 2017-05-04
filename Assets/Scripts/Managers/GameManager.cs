@@ -5,6 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(KeyBindings))]
 [RequireComponent(typeof(InputHandler))]
 [RequireComponent(typeof(CommandLog))]
+[RequireComponent(typeof(CommandReplayer))]
+[RequireComponent(typeof(CommandRewinder))]
 public class GameManager : MonoBehaviour 
 {
 	public static GameManager GM;
@@ -12,6 +14,8 @@ public class GameManager : MonoBehaviour
 	public KeyBindings keyBinds;
 	public InputHandler inputHandler;
 	public CommandLog cmdLog;
+	public CommandReplayer replayer;
+	public CommandRewinder rewinder;
 
 	void Awake()
 	{
@@ -30,5 +34,7 @@ public class GameManager : MonoBehaviour
 		keyBinds = GetComponent<KeyBindings>();
 		inputHandler = GetComponent<InputHandler>();
 		cmdLog = GetComponent<CommandLog>();
+		replayer = GetComponent<CommandReplayer>();
+		rewinder = GetComponent<CommandRewinder>();
 	}
 }
