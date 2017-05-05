@@ -35,7 +35,7 @@ public class InputHandler : MonoBehaviour
 		nop = new CommandNop(player);
 	}
 
-	void Update()
+	void FixedUpdate()
 	{
 		// If input is allowed, get the input command and execute the command
 		if(allowInput)

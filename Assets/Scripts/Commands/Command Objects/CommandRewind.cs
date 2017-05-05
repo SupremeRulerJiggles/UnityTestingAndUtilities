@@ -8,7 +8,7 @@ public class CommandRewind : Command
 	{
 		base.Execute(obj, log);
 
-		CommandRewinder rewinder = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().rewinder;
+		CommandRewinder rewinder = GameManager.GM.rewinder;
 
 		if(rewinder)
 			rewinder.Rewind();

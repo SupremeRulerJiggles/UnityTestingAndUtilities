@@ -11,8 +11,8 @@ public class CommandReplayer : MonoBehaviour
 	{
 		try
 		{
-			inputHandler = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().inputHandler;
-			cmdLog = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().cmdLog;
+			inputHandler = GameManager.GM.inputHandler;
+			cmdLog = GameManager.GM.cmdLog;
 		}
 		catch{ Debug.Log(MessageText.managerError + "Game Manager could not be found.", this); }
 	}

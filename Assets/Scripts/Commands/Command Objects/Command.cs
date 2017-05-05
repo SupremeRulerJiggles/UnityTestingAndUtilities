@@ -19,7 +19,7 @@ public class Command
 		{
 			if(!cmdLog)
 			{
-				try{ cmdLog = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().cmdLog; }
+				try{ cmdLog = GameManager.GM.cmdLog; }
 				catch { Debug.Log(MessageText.managerError + "The Command Log component could not be found on the Game Controller"); }
 			}
 

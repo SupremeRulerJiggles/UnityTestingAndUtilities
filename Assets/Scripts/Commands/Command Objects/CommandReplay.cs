@@ -10,7 +10,7 @@ public class CommandReplay : Command
 
 		CommandReplayer replayer;
 
-		replayer = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>().replayer;
+		replayer = GameManager.GM.replayer;
 
 		if(replayer)
 			replayer.Replay();
