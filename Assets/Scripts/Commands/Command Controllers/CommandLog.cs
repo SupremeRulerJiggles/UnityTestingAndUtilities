@@ -50,7 +50,7 @@ public class CommandLog : MonoBehaviour
 	{
 		if(log.Count > maxSize)
 		{
-			for(int i = maxSize; i <= log.Count; i++)
+			for(int i = maxSize; i < log.Count; i++)
 			{
 				log.Remove(log[i]);
 			}
