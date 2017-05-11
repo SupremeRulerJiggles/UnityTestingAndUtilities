@@ -18,7 +18,10 @@ public class CommandMove : Command
 		base.Execute(obj, log);
 
 		try
-		{ obj.GetComponent<Movement>().Move(moveDir); }
+		{ 
+			obj.GetComponent<Movement>().Move(moveDir); 
+			obj.GetComponent<Movement>().Turn(moveDir); 
+		}
 		catch{ Debug.Log(MessageText.cmdError + "Tried to send move command to an object without the movement script!", obj); }
 
 		pos = obj.transform.position;
@@ -29,7 +32,10 @@ public class CommandMove : Command
 		base.Undo(obj);
 
 		try
-		{ obj.GetComponent<Movement>().Move(-moveDir); }
+		{
+			obj.GetComponent<Movement>().Move(-moveDir); 
+			obj.GetComponent<Movement>().Turn(moveDir); 
+		}
 		catch{ Debug.Log(MessageText.cmdError + "Tried to send move command to an object without the movement script!", obj); }
 	}
 }
