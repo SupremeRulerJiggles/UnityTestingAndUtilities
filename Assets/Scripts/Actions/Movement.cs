@@ -47,7 +47,6 @@ public class Movement : MonoBehaviour
 
 	Vector3 GetAcceleratedSpeed(Vector3 dir)
 	{
-		print(Vector3.Lerp(control.velocity, dir * MaxSpeed, AccelSpeed * Time.deltaTime));
 		return Vector3.Lerp(control.velocity, dir * MaxSpeed, AccelSpeed * Time.deltaTime);
 	}
 }
