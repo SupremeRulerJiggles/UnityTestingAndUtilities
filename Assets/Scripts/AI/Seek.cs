@@ -5,10 +5,12 @@ using UnityEngine;
 public class Seek : MonoBehaviour 
 {
 	GameObject character;
-	GameObject target;
+	[SerializeField] GameObject target;
 
-	float maxAcceleration = .01f;
-	float maxSpeed = 1f;
+	[SerializeField] float maxAcceleration = 5f;
+	[SerializeField] float maxSpeed = 5f;
+
+	[SerializeField] bool ignoreY = false;
 
 	Vector3 velocity;
 
@@ -21,19 +23,40 @@ public class Seek : MonoBehaviour
 
 	void FixedUpdate () 
 	{
-		Vector3 newVelocity = GetSteering2D().linear * Time.deltaTime;
-		velocity += newVelocity;
-
-		print(velocity);
+		if(!ignoreY)
+		{
+			velocity += GetAcceleration().linear * Time.fixedDeltaTime;
+		}
+		else
+		{
+			velocity += GetAcceleration2D().linear * Time.fixedDeltaTime;
+		}
 
 		if(velocity.magnitude > maxSpeed)
+		{
 			velocity = velocity.normalized * maxSpeed;
-			
+		}
 
-		transform.position += velocity;
+		transform.position += velocity * Time.fixedDeltaTime;
 	}
 
-	SteeringOutput GetSteering2D()
+	// Get the acceleration in 3D
+	SteeringOutput GetAcceleration()
+	{
+		SteeringOutput steering = new SteeringOutput();
+
+		steering.linear = target.transform.position - character.transform.position;
+
+		steering.linear.Normalize();
+		steering.linear *= maxAcceleration;
+
+		steering.angular = 0;
+
+		return steering;
+	}
+
+	// Get the acceleration in 2D
+	SteeringOutput GetAcceleration2D()
 	{
 		SteeringOutput steering = new SteeringOutput();
 

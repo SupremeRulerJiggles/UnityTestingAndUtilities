@@ -5,44 +5,39 @@ using UnityEngine;
 public class Arrive : MonoBehaviour 
 {
 	GameObject character;
-	GameObject target;
+	[SerializeField] GameObject target;
 
-	Info characterInfo;
+	[SerializeField] float maxAcceleration = 5f;
+	[SerializeField] float maxSpeed = 5f;
 
-	float maxAcceleration = 100f;
-	float maxSpeed = 100f;
+	[SerializeField] float targetRadius = .1f;
+	[SerializeField] float slowRadius = 5f;
 
-	float targetRadius = 1f;
-	float slowRadius = 100f;
-
-	float timeToTarget = .6f;
+	[SerializeField] float timeToTarget = .1f;
 
 	Vector3 velocity;
 
 	void Start () 
 	{
 		character = gameObject;
-		characterInfo = GetComponent<Info>();
 		if(!target)
 			target = GameObject.FindGameObjectWithTag("Player");
 	}
 
 	void FixedUpdate () 
 	{
-		print(transform.position);
+		SteeringOutput steering = GetSteering();
 
-		SteeringOutput steering = GetSteering2D();
 		if(steering != null)
 		{
-			Vector3 newVelocity = GetSteering2D().linear * Time.fixedDeltaTime;
-			velocity += newVelocity;
+			velocity += steering.linear * Time.fixedDeltaTime;
 
-			if(velocity.magnitude / Time.fixedDeltaTime > maxSpeed)
+			if(velocity.magnitude > maxSpeed)
 			{
-				velocity = velocity.normalized * maxSpeed * Time.fixedDeltaTime;
+				velocity = velocity.normalized * maxSpeed;
 			}
-
-			transform.position += velocity;
+				
+			transform.position += velocity * Time.fixedDeltaTime;
 		}
 		else
 		{
@@ -51,15 +46,18 @@ public class Arrive : MonoBehaviour
 	}
 
 	// Returns a SteeringOutput object who's linear vector is the acceleration amount for this frame
-	SteeringOutput GetSteering2D()
+	SteeringOutput GetSteering()
 	{
 		SteeringOutput steering = new SteeringOutput();
+		Vector3 direction = Vector3.zero;
+		Vector3 targetVelocity = Vector3.zero;
 
-		// Direction from character to target
-		Vector3 direction = target.transform.position - character.transform.position;
-
-		// Distance from character to target
+		// Direction and distance from character to target
+		direction = target.transform.position - character.transform.position;
 		float distance = direction.magnitude;
+
+		// Stores the desired movement speed of the object
+		float targetSpeed = 0f;
 
 		// If the distance is within the stopping radius, return null
 		if(distance < targetRadius)
@@ -69,24 +67,29 @@ public class Arrive : MonoBehaviour
 		// If the distance is outside the slow down radius, move at max speed
 		else if(distance > slowRadius)
 		{
-			steering.linear = direction.normalized * maxSpeed;
+			targetSpeed = maxSpeed;
 		}
 		// If the distance is within the slow down radius, calculate the speed based on distance from the target
 		else
 		{
-			float targetSpeed = maxSpeed * distance / slowRadius;
+			targetSpeed = maxSpeed * distance / slowRadius;
+		}
 
-			Vector3 targetVelocity = direction.normalized * targetSpeed;
-			Vector3 currentVelocity2D = new Vector3(characterInfo.velocity.x, 0f, characterInfo.velocity.z);
+		// Normalize the direction we want to move in and multiply it by the target speed
+		targetVelocity = direction;
+		targetVelocity.Normalize();
+		targetVelocity *= targetSpeed;
 
-			steering.linear = targetVelocity - currentVelocity2D;
-			steering.linear /= timeToTarget;
+		// Acceleration is the difference in target and current velocities
+		// Then divide by the time factor to scale it up or down
+		steering.linear = targetVelocity - velocity;
+		steering.linear /= timeToTarget;
 
-			if(steering.linear.magnitude > maxAcceleration)
-			{
-				steering.linear.Normalize();
-				steering.linear *= maxAcceleration;
-			}
+		// If the acceleration amount is greater than the max acceleration, normalize it
+		if(steering.linear.magnitude > maxAcceleration)
+		{
+			steering.linear.Normalize();
+			steering.linear *= maxAcceleration;
 		}
 
 		steering.angular = 0;

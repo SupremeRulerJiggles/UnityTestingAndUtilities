@@ -5,9 +5,14 @@ using UnityEngine;
 public class Flee : MonoBehaviour 
 {
 	GameObject character;
-	GameObject target;
+	[SerializeField] GameObject target;
 
-	float maxAcceleration = 4f;
+	[SerializeField] float maxAcceleration = 5f;
+	[SerializeField] float maxSpeed = 5f;
+
+	[SerializeField] bool ignoreY = true;
+
+	Vector3 velocity;
 
 	void Start () 
 	{
@@ -18,12 +23,40 @@ public class Flee : MonoBehaviour
 
 	void FixedUpdate () 
 	{
-		Vector3 newVelocity = GetSteering2D().linear * Time.deltaTime;
+		if(!ignoreY)
+		{
+			velocity += GetAcceleration().linear * Time.fixedDeltaTime;
+		}
+		else
+		{
+			velocity += GetAcceleration2D().linear * Time.fixedDeltaTime;
+		}
 
-		transform.position += newVelocity;
+		if(velocity.magnitude > maxSpeed)
+		{
+			velocity = velocity.normalized * maxSpeed;
+		}
+
+		transform.position += velocity * Time.fixedDeltaTime;
 	}
 
-	SteeringOutput GetSteering2D()
+	// Get the acceleration in 3D
+	SteeringOutput GetAcceleration()
+	{
+		SteeringOutput steering = new SteeringOutput();
+
+		steering.linear = character.transform.position - target.transform.position;
+
+		steering.linear.Normalize();
+		steering.linear *= maxAcceleration;
+
+		steering.angular = 0;
+
+		return steering;
+	}
+
+	// Get the acceleration in 2D
+	SteeringOutput GetAcceleration2D()
 	{
 		SteeringOutput steering = new SteeringOutput();
 
