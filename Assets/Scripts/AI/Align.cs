@@ -7,15 +7,15 @@ public class Align : MonoBehaviour
 	GameObject character;
 	[SerializeField] GameObject target;
 
-	[SerializeField] float maxAngularAcceleration;
-	[SerializeField] float maxRotation;
+	[SerializeField] float maxAngularAcceleration = 100f;
+	[SerializeField] float maxRotation = 100f;
 
-	[SerializeField] float targetRadius;
-	[SerializeField] float slowRadius;
+	[SerializeField] float targetRadius = .1f;
+	[SerializeField] float slowRadius = 1f;
 
 	[SerializeField] float timeToTarget = .1f;
 
-	public float modNum = 50;
+	float rotation;
 
 	void Start () 
 	{
@@ -24,20 +24,77 @@ public class Align : MonoBehaviour
 			target = GameObject.FindGameObjectWithTag("Player");
 	}
 
-	void Update()
+	void FixedUpdate()
 	{
+		SteeringOutput acceleration = GetAcceleration();
 
+		if(acceleration != null)
+		{
+			rotation += acceleration.angular * Time.fixedDeltaTime;
+
+			if(rotation > maxRotation)
+			{
+				rotation = Math.Sign(rotation) * maxAngularAcceleration;
+			}
+
+			character.transform.rotation = Quaternion.Euler(
+				character.transform.rotation.eulerAngles.x, 
+				character.transform.rotation.eulerAngles.y + (rotation * Time.fixedDeltaTime),
+				character.transform.rotation.eulerAngles.z
+			);
+		}
+		else
+		{
+			rotation = 0f;
+		}
 	}
 
 	SteeringOutput GetAcceleration()
 	{
+		float currentRotation = 0f;
+		float targetRotation = 0f;
+		float currentRotationSize = 0f;
+
 		SteeringOutput acceleration = new SteeringOutput();
 
-		Vector3 targetOrientation = target.transform.forward;
+		// Direction we are facing and direction we want to face
 		Vector3 characterOrientation = character.transform.forward;
+		Vector3 targetOrientation = target.transform.position - character.transform.position;
 
-		Vector3 rotation = targetOrientation - characterOrientation;
+		// Map the directions to degree orientations, subtract as degrees, then convert back to radians (-Pi, Pi]
+		currentRotation = Math.MapPiToDegrees(Mathf.Atan2(targetOrientation.x, targetOrientation.z)) - 
+			Math.MapPiToDegrees(Mathf.Atan2(characterOrientation.x, characterOrientation.z));
+		currentRotation = Math.MapDegreesToPi(currentRotation);
 
-		return null;
+		// Get the magnitude of the rotation
+		currentRotationSize = Mathf.Abs(currentRotation);
+
+		if(currentRotationSize < targetRadius)
+		{
+			return null;
+		}
+		else if(currentRotationSize > slowRadius)
+		{
+			targetRotation = maxRotation;	
+		}
+		else
+		{
+			targetRotation = maxRotation * currentRotationSize / slowRadius;
+		}
+
+		targetRotation *= Math.Sign(currentRotation);
+
+		acceleration.angular = targetRotation - rotation;
+		acceleration.angular /= timeToTarget;
+
+		if(Mathf.Abs(acceleration.angular) > maxAngularAcceleration)
+		{
+			acceleration.angular /= Mathf.Abs(acceleration.angular);
+			acceleration.angular *= maxAngularAcceleration;
+		}
+
+		acceleration.linear = Vector3.zero;
+
+		return acceleration;
 	}
 }
