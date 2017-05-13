@@ -26,8 +26,7 @@ public class Align : MonoBehaviour
 
 	void Update()
 	{
-		print(Math.MapToRangePI(-655));
-		print(Math.MapToRange(Math.MapToRangePI(-655), -Mathf.PI, Mathf.PI, 0, 10));
+
 	}
 
 	SteeringOutput GetAcceleration()
