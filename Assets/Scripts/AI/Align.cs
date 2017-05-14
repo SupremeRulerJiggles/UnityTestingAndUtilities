@@ -4,28 +4,38 @@ using UnityEngine;
 
 public class Align : MonoBehaviour 
 {
-	GameObject character;
-	[SerializeField] GameObject target;
+	protected GameObject character;
+	protected GameObject target;
 
-	[SerializeField] float maxAngularAcceleration = 100f;
-	[SerializeField] float maxRotation = 100f;
+	[SerializeField] protected float maxAngularAcceleration = 100f;
+	[SerializeField] protected float maxRotation = 100f;
 
-	[SerializeField] float targetRadius = .1f;
-	[SerializeField] float slowRadius = 1f;
+	[SerializeField] protected float targetRadius = .1f;
+	[SerializeField] protected float slowRadius = 1f;
 
-	[SerializeField] float timeToTarget = .1f;
+	[SerializeField] protected float timeToTarget = .1f;
 
-	float rotation;
+	protected float rotation;
 
-	void Start () 
+	// GetAcceleration Variables
+	protected float rotationRemaining;
+	protected float rotationRemainingSize;
+	protected float targetRotation;
+	protected SteeringOutput acceleration;
+	protected Vector3 characterForward;
+	protected Vector3 targetForward;
+
+	protected void Start () 
 	{
 		character = gameObject;
 		if(!target)
 			target = GameObject.FindGameObjectWithTag("Player");
 	}
 
-	void FixedUpdate()
+	protected void FixedUpdate()
 	{
+		GetForwards();
+
 		SteeringOutput acceleration = GetAcceleration();
 
 		if(acceleration != null)
@@ -49,40 +59,33 @@ public class Align : MonoBehaviour
 		}
 	}
 
-	SteeringOutput GetAcceleration()
+	protected virtual SteeringOutput GetAcceleration()
 	{
-		float currentRotation = 0f;
-		float targetRotation = 0f;
-		float currentRotationSize = 0f;
+		acceleration = new SteeringOutput();
 
-		SteeringOutput acceleration = new SteeringOutput();
-
-		// Direction we are facing and direction we want to face
-		Vector3 characterOrientation = character.transform.forward;
-		Vector3 targetOrientation = target.transform.position - character.transform.position;
-
-		// Map the directions to degree orientations, subtract as degrees, then convert back to radians (-Pi, Pi]
-		currentRotation = Math.MapPiToDegrees(Mathf.Atan2(targetOrientation.x, targetOrientation.z)) - 
-			Math.MapPiToDegrees(Mathf.Atan2(characterOrientation.x, characterOrientation.z));
-		currentRotation = Math.MapDegreesToPi(currentRotation);
+		// Map the forward directions to degree orientations, subtract the forward orientations to get the
+		// rotational difference between them, then convert that difference back to radians (-Pi, Pi]
+		rotationRemaining = Math.MapPiToDegrees(Mathf.Atan2(targetForward.x, targetForward.z)) - 
+			Math.MapPiToDegrees(Mathf.Atan2(characterForward.x, characterForward.z));
+		rotationRemaining = Math.MapDegreesToPi(rotationRemaining);
 
 		// Get the magnitude of the rotation
-		currentRotationSize = Mathf.Abs(currentRotation);
+		rotationRemainingSize = Mathf.Abs(rotationRemaining);
 
-		if(currentRotationSize < targetRadius)
+		if(rotationRemainingSize < targetRadius)
 		{
 			return null;
 		}
-		else if(currentRotationSize > slowRadius)
+		else if(rotationRemainingSize > slowRadius)
 		{
 			targetRotation = maxRotation;	
 		}
 		else
 		{
-			targetRotation = maxRotation * currentRotationSize / slowRadius;
+			targetRotation = maxRotation * rotationRemainingSize / slowRadius;
 		}
 
-		targetRotation *= Math.Sign(currentRotation);
+		targetRotation *= Math.Sign(rotationRemaining);
 
 		acceleration.angular = targetRotation - rotation;
 		acceleration.angular /= timeToTarget;
@@ -96,5 +99,12 @@ public class Align : MonoBehaviour
 		acceleration.linear = Vector3.zero;
 
 		return acceleration;
+	}
+
+	protected virtual void GetForwards()
+	{
+		// Direction we are facing and direction we want to face
+		characterForward = character.transform.forward;
+		targetForward = target.transform.position - character.transform.position;
 	}
 }
