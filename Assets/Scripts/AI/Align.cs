@@ -106,5 +106,7 @@ public class Align : MonoBehaviour
 		// Direction we are facing and direction we want to face
 		characterForward = character.transform.forward;
 		targetForward = target.transform.position - character.transform.position;
+
+		print(target.gameObject.tag);
 	}
 }

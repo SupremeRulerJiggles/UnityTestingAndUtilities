@@ -8,6 +8,9 @@ public class FaceTarget : Align
 
 	void Start () 
 	{
+		if(!faceTarget)
+			faceTarget = GameObject.FindGameObjectWithTag("Player");
+
 		target = faceTarget;
 
 		base.Start();

@@ -20,7 +20,7 @@ public class CommandMove : Command
 		try
 		{ 
 			obj.GetComponent<Movement>().Move(moveDir); 
-			obj.GetComponent<Movement>().Turn(moveDir); 
+			//obj.GetComponent<Movement>().Turn(moveDir); 
 		}
 		catch{ Debug.Log(MessageText.cmdError + "Tried to send move command to an object without the movement script!", obj); }
 
