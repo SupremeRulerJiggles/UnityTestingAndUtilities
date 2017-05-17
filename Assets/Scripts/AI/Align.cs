@@ -109,7 +109,11 @@ public class Align : MonoBehaviour
 		characterForward = character.transform.forward;
 		targetForward = target.transform.position - character.transform.position;
 
+<<<<<<< HEAD
 		characterOrientation = Mathf.Atan2(characterForward.x, characterForward.z);
 		targetOrientation = Mathf.Atan2(targetForward.x, targetForward.z);
+=======
+		print(target.gameObject.tag);
+>>>>>>> origin/master
 	}
 }
