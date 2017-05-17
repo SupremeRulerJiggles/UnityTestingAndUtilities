@@ -4,24 +4,24 @@ using UnityEngine;
 
 public class Seek : MonoBehaviour 
 {
-	GameObject character;
-	[SerializeField] GameObject target;
+	protected GameObject character;
+	[SerializeField] protected GameObject target;
 
-	[SerializeField] float maxAcceleration = 5f;
-	[SerializeField] float maxSpeed = 5f;
+	[SerializeField] protected float maxAcceleration = 5f;
+	[SerializeField] protected float maxSpeed = 5f;
 
-	[SerializeField] bool ignoreY = false;
+	[SerializeField] protected bool ignoreY = false;
 
-	Vector3 velocity;
+	protected Vector3 velocity;
 
-	void Start () 
+	protected void Start () 
 	{
 		character = gameObject;
 		if(!target)
 			target = GameObject.FindGameObjectWithTag("Player");
 	}
 
-	void FixedUpdate () 
+	protected void FixedUpdate () 
 	{
 		if(!ignoreY)
 		{
@@ -41,33 +41,33 @@ public class Seek : MonoBehaviour
 	}
 
 	// Get the acceleration in 3D
-	SteeringOutput GetAcceleration()
+	protected virtual AccelerationOutput GetAcceleration()
 	{
-		SteeringOutput steering = new SteeringOutput();
+		AccelerationOutput acceleration = new AccelerationOutput();
 
-		steering.linear = target.transform.position - character.transform.position;
+		acceleration.linear = target.transform.position - character.transform.position;
 
-		steering.linear.Normalize();
-		steering.linear *= maxAcceleration;
+		acceleration.linear.Normalize();
+		acceleration.linear *= maxAcceleration;
 
-		steering.angular = 0;
+		acceleration.angular = 0;
 
-		return steering;
+		return acceleration;
 	}
 
 	// Get the acceleration in 2D
-	SteeringOutput GetAcceleration2D()
+	protected virtual AccelerationOutput GetAcceleration2D()
 	{
-		SteeringOutput steering = new SteeringOutput();
+		AccelerationOutput acceleration = new AccelerationOutput();
 
-		steering.linear = target.transform.position - character.transform.position;
-		steering.linear = new Vector3(steering.linear.x, 0f, steering.linear.z);
+		acceleration.linear = target.transform.position - character.transform.position;
+		acceleration.linear = new Vector3(acceleration.linear.x, 0f, acceleration.linear.z);
 
-		steering.linear.Normalize();
-		steering.linear *= maxAcceleration;
+		acceleration.linear.Normalize();
+		acceleration.linear *= maxAcceleration;
 
-		steering.angular = 0;
+		acceleration.angular = 0;
 
-		return steering;
+		return acceleration;
 	}
 }

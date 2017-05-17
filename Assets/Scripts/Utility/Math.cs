@@ -53,6 +53,14 @@ public static class Math
 		}
 	}
 
+	public static Vector3 OrientationVector(float angle)
+	{
+		float x = Mathf.Sin(angle);
+		float z = Mathf.Cos(angle);
+
+		return new Vector3(x, 0f, z);
+	}
+
 	public static float Sign(float num)
 	{
 		return num / Mathf.Abs(num);

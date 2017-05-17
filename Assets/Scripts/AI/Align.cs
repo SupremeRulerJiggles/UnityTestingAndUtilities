@@ -21,9 +21,12 @@ public class Align : MonoBehaviour
 	protected float rotationRemaining;
 	protected float rotationRemainingSize;
 	protected float targetRotation;
-	protected SteeringOutput acceleration;
+	protected AccelerationOutput acceleration;
 	protected Vector3 characterForward;
 	protected Vector3 targetForward;
+
+	protected float characterOrientation;
+	protected float targetOrientation;
 
 	protected void Start () 
 	{
@@ -34,9 +37,9 @@ public class Align : MonoBehaviour
 
 	protected void FixedUpdate()
 	{
-		GetForwards();
+		GetInfo();
 
-		SteeringOutput acceleration = GetAcceleration();
+		AccelerationOutput acceleration = GetAcceleration();
 
 		if(acceleration != null)
 		{
@@ -59,14 +62,13 @@ public class Align : MonoBehaviour
 		}
 	}
 
-	protected virtual SteeringOutput GetAcceleration()
+	protected virtual AccelerationOutput GetAcceleration()
 	{
-		acceleration = new SteeringOutput();
-
+		acceleration = new AccelerationOutput();
+		print(targetOrientation);
 		// Map the forward directions to degree orientations, subtract the forward orientations to get the
 		// rotational difference between them, then convert that difference back to radians (-Pi, Pi]
-		rotationRemaining = Math.MapPiToDegrees(Mathf.Atan2(targetForward.x, targetForward.z)) - 
-			Math.MapPiToDegrees(Mathf.Atan2(characterForward.x, characterForward.z));
+		rotationRemaining = Math.MapPiToDegrees(targetOrientation) - Math.MapPiToDegrees(characterOrientation);
 		rotationRemaining = Math.MapDegreesToPi(rotationRemaining);
 
 		// Get the magnitude of the rotation
@@ -101,10 +103,13 @@ public class Align : MonoBehaviour
 		return acceleration;
 	}
 
-	protected virtual void GetForwards()
+	protected virtual void GetInfo()
 	{
 		// Direction we are facing and direction we want to face
 		characterForward = character.transform.forward;
 		targetForward = target.transform.position - character.transform.position;
+
+		characterOrientation = Mathf.Atan2(characterForward.x, characterForward.z);
+		targetOrientation = Mathf.Atan2(targetForward.x, targetForward.z);
 	}
 }

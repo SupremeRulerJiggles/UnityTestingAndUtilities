@@ -14,7 +14,7 @@ public class FaceMovement : Align
 		base.FixedUpdate();
 	}
 
-	protected override SteeringOutput GetAcceleration()
+	protected override AccelerationOutput GetAcceleration()
 	{
 		Vector3 currentVelocity = Vector3.zero;
 
@@ -28,7 +28,7 @@ public class FaceMovement : Align
 		return base.GetAcceleration();
 	}
 
-	protected override void GetForwards()
+	protected override void GetInfo()
 	{
 		// Direction we are facing
 		characterForward = character.transform.forward;

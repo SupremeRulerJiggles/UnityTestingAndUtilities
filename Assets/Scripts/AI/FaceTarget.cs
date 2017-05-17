@@ -6,19 +6,22 @@ public class FaceTarget : Align
 {
 	public GameObject faceTarget;
 
-	void Start () 
+	protected void Start () 
 	{
+		if(!faceTarget)
+			faceTarget = GameObject.FindGameObjectWithTag("Player");
+
 		target = faceTarget;
 
 		base.Start();
 	}
 
-	void FixedUpdate () 
+	protected void FixedUpdate () 
 	{
 		base.FixedUpdate();
 	}
 
-	protected override SteeringOutput GetAcceleration()
+	protected override AccelerationOutput GetAcceleration()
 	{
 		Vector3 direction;
 

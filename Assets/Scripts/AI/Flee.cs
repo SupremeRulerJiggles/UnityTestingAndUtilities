@@ -4,25 +4,29 @@ using UnityEngine;
 
 public class Flee : MonoBehaviour 
 {
-	GameObject character;
-	[SerializeField] GameObject target;
+	protected GameObject character;
+	[SerializeField] protected GameObject target;
 
-	[SerializeField] float maxAcceleration = 5f;
-	[SerializeField] float maxSpeed = 5f;
+	[SerializeField] protected float maxAcceleration = 5f;
+	[SerializeField] protected float maxSpeed = 5f;
 
-	[SerializeField] bool ignoreY = true;
+	[SerializeField] protected bool ignoreY = true;
 
-	Vector3 velocity;
+	protected Vector3 velocity;
 
-	void Start () 
+	protected Vector3 targetPosition;
+
+	protected void Start () 
 	{
 		character = gameObject;
 		if(!target)
 			target = GameObject.FindGameObjectWithTag("Player");
 	}
 
-	void FixedUpdate () 
+	protected void FixedUpdate () 
 	{
+		GetInfo();
+
 		if(!ignoreY)
 		{
 			velocity += GetAcceleration().linear * Time.fixedDeltaTime;
@@ -41,11 +45,11 @@ public class Flee : MonoBehaviour
 	}
 
 	// Get the acceleration in 3D
-	SteeringOutput GetAcceleration()
+	protected virtual AccelerationOutput GetAcceleration()
 	{
-		SteeringOutput steering = new SteeringOutput();
+		AccelerationOutput steering = new AccelerationOutput();
 
-		steering.linear = character.transform.position - target.transform.position;
+		steering.linear = character.transform.position - targetPosition;
 
 		steering.linear.Normalize();
 		steering.linear *= maxAcceleration;
@@ -56,11 +60,11 @@ public class Flee : MonoBehaviour
 	}
 
 	// Get the acceleration in 2D
-	SteeringOutput GetAcceleration2D()
+	protected virtual AccelerationOutput GetAcceleration2D()
 	{
-		SteeringOutput steering = new SteeringOutput();
+		AccelerationOutput steering = new AccelerationOutput();
 
-		steering.linear = character.transform.position - target.transform.position;
+		steering.linear = character.transform.position - targetPosition;
 		steering.linear = new Vector3(steering.linear.x, 0f, steering.linear.z);
 
 		steering.linear.Normalize();
@@ -69,5 +73,10 @@ public class Flee : MonoBehaviour
 		steering.angular = 0;
 
 		return steering;
+	}
+
+	protected virtual void GetInfo()
+	{
+		targetPosition = target.transform.position;
 	}
 }
