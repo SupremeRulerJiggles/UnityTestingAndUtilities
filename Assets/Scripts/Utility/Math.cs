@@ -4,6 +4,8 @@ using UnityEngine;
 
 public static class Math
 {
+	public static float Infinity = 1000000f;
+
 	public static float RandomBinomial()
 	{
 		return Random.Range(0f, 1f) - Random.Range(0f, 1f);
@@ -64,5 +66,53 @@ public static class Math
 	public static float Sign(float num)
 	{
 		return num / Mathf.Abs(num);
+	}
+
+	public static Vector3 NearestPointOnLine(Vector3 point, Vector3 lineStart, Vector3 lineEnd)
+	{
+		float lineSlope;
+		float inverseLineSlope;
+
+		if(lineStart.x == lineEnd.x)
+		{
+			lineSlope = Infinity;
+			inverseLineSlope = 0f;
+		}
+		else if(lineStart.z == lineEnd.z)
+		{
+			lineSlope = 0f;
+			inverseLineSlope = Infinity;
+		}
+		else
+		{
+			lineSlope = (lineEnd.z -lineStart.z) / (lineEnd.x - lineStart.x);
+			inverseLineSlope = -1/lineSlope;
+		}
+
+		float lineZIntercept = lineStart.z - (lineSlope * lineStart.x);
+		float inverseLineZIntercept = point.z - (inverseLineSlope * point.x);
+
+		float intersectXValue = (inverseLineZIntercept - lineZIntercept) / (lineSlope - inverseLineSlope);
+		float intersectZValue = lineSlope * intersectXValue + lineZIntercept;
+
+		if((lineStart.x < lineEnd.x && intersectXValue > lineEnd.x) || (lineStart.x > lineEnd.x && intersectXValue < lineEnd.x))
+		{
+			intersectXValue = lineEnd.x;
+		}
+		else if((lineStart.x < lineEnd.x && intersectXValue < lineStart.x) || (lineStart.x > lineEnd.x && intersectXValue > lineStart.x))
+		{
+			intersectXValue = lineStart.x;
+		}
+
+		if((lineStart.z < lineEnd.z && intersectZValue > lineEnd.z) || (lineStart.z > lineEnd.z && intersectZValue < lineEnd.z))
+		{
+			intersectZValue = lineEnd.z;
+		}
+		else if((lineStart.z < lineEnd.z && intersectZValue < lineStart.z) || (lineStart.z > lineEnd.z && intersectZValue > lineStart.z))
+		{
+			intersectZValue = lineStart.z;
+		}
+
+		return new Vector3(intersectXValue, point.y, intersectZValue);
 	}
 }
